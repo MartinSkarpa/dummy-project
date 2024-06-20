@@ -1,8 +1,9 @@
 import { FormControlLabel, Grid, Switch } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { featureFlagProps } from '../../../../constants';
-import { useFeatureFlagDataDummy } from "../../../../../../database";
+import { useFeatureFlagDataDummy } from '../../../../../../database';
 
+// eslint-disable-next-line react/prop-types
 export const FeatureFlag = ({ name }) => {
   const [value, setValue] = useState(false);
 

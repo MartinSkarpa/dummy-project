@@ -1,7 +1,7 @@
 import { Container, Grid } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { skeletonArray } from '../../constants';
-import { useFeatureFlagDataDummy } from "../../../../database";
+import { useFeatureFlagDataDummy } from '../../../../database';
 import { FeatureFlag, FeatureFlagSkeleton } from './components';
 
 export const FeatureFlagsForm = () => {
