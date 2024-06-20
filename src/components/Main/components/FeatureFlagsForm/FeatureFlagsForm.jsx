@@ -1,36 +1,20 @@
-import { Container, Grid } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
-import { skeletonArray } from '../../constants';
-import { useFeatureFlagDataDummy } from '../../../../database';
-import { FeatureFlag, FeatureFlagSkeleton } from './components';
+import { Grid } from '@mui/material';
+import { use, useMemo } from 'react';
+import { FeatureFlag } from './components';
 
-export const FeatureFlagsForm = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [featureFlagIdsList, setFeatureFlagIdsList] = useState([]);
-
-  const { fetchFeatureFlagIdsListDummy } = useFeatureFlagDataDummy();
-
-  useEffect(() => {
-    fetchFeatureFlagIdsListDummy()
-      .then((message) => setFeatureFlagIdsList(message))
-      .catch((err) => console.error(err))
-      .finally(() => setIsLoading(false));
-  }, [fetchFeatureFlagIdsListDummy]);
+// eslint-disable-next-line react/prop-types
+export const FeatureFlagsForm = ({ featureFlagsDummyPromise }) => {
+  // NOTE Promise should be created in parent component.
+  const featureFlags = use(featureFlagsDummyPromise);
 
   const renderFeatureFlags = useMemo(
-    () =>
-      isLoading ? skeletonArray.map((_, index) => <FeatureFlagSkeleton key={index} />) : featureFlagIdsList.map((key) => <FeatureFlag key={key} name={key} />),
-    [featureFlagIdsList, isLoading]
+    () => Object.entries(featureFlags).map(([name, value]) => <FeatureFlag key={name} name={name} value={value} />),
+    [featureFlags]
   );
 
   return (
-    <>
-      <h1>Feature flags</h1>
-      <Container>
-        <Grid container id="featureFlagsFormContainer">
-          {renderFeatureFlags}
-        </Grid>
-      </Container>
-    </>
+    <Grid container id="featureFlagsFormContainer">
+      {renderFeatureFlags}
+    </Grid>
   );
 };
