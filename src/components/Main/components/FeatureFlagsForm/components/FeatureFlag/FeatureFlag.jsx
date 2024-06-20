@@ -1,29 +1,54 @@
-import { FormControlLabel, Grid, Switch } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { CircularProgress, FormControlLabel, Grid, Switch, Typography } from '@mui/material';
+import { startTransition, useCallback, useOptimistic, useState } from 'react';
 import { featureFlagProps } from '../../../../constants';
 import { useFeatureFlagDataDummy } from '../../../../../../database';
+import { circularProgressSx, errorSx } from './styles';
 
 // eslint-disable-next-line react/prop-types
-export const FeatureFlag = ({ name }) => {
-  const [value, setValue] = useState(false);
+export const FeatureFlag = ({ defaultValue, name }) => {
+  const [value, setValue] = useState(defaultValue);
+  const [valueOptimistic, setValueOptimistic] = useOptimistic(value);
+  const [error, setError] = useState(null);
 
-  const { fetchFeatureFlagDummy, setFeatureFlagDummy } = useFeatureFlagDataDummy();
+  const { setFeatureFlagDummy } = useFeatureFlagDataDummy();
 
+  // NOTE Operation must be in tag "form" or in "startTransition" function.
+  // NOTE Operation must be async/await in order to make this stuff working.
   const handleSwitchClick = useCallback(() => {
-    setFeatureFlagDummy(name, !value)
-      .then(() => setValue(!value))
-      .catch((err) => console.error('Error updating feature flag: ', err));
-  }, [name, setFeatureFlagDummy, value]);
+    // NOTE Other states (useState) must be mutated outside the transition to take
+    //  an immediate effect.
+    setError(null);
 
-  useEffect(() => {
-    fetchFeatureFlagDummy(name)
-      .then(({ value }) => setValue(value))
-      .catch((err) => console.error(err));
-  }, [fetchFeatureFlagDummy, name]);
+    startTransition(async () => {
+      setValueOptimistic(!value);
+
+      try {
+        await setFeatureFlagDummy(name, !value);
+
+        setValue(!value);
+      } catch (err) {
+        console.error('Error updating feature flag: ', err);
+        setError('Ooops!');
+      }
+    });
+  }, [name, setFeatureFlagDummy, setValueOptimistic, value]);
+
+  const isPending = value !== valueOptimistic;
+  const label = (
+    <>
+      <span>{name}</span>
+      {isPending && <CircularProgress size={16} sx={circularProgressSx} />}
+      {error && (
+        <Typography component="span" variant="body1" sx={errorSx}>
+          {error}
+        </Typography>
+      )}
+    </>
+  );
 
   return (
     <Grid {...featureFlagProps}>
-      <FormControlLabel label={name} control={<Switch checked={value} onClick={handleSwitchClick} />} />
+      <FormControlLabel label={label} control={<Switch checked={valueOptimistic} disabled={isPending} onClick={handleSwitchClick} />} />
     </Grid>
   );
 };

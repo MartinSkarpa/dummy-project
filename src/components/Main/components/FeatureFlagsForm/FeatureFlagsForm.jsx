@@ -6,21 +6,23 @@ import { FeatureFlag, FeatureFlagSkeleton } from './components';
 
 export const FeatureFlagsForm = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [featureFlagIdsList, setFeatureFlagIdsList] = useState([]);
+  const [featureFlags, setFeatureFlags] = useState([]);
 
-  const { fetchFeatureFlagIdsListDummy } = useFeatureFlagDataDummy();
+  const { fetchFeatureFlagsDummy } = useFeatureFlagDataDummy();
 
   useEffect(() => {
-    fetchFeatureFlagIdsListDummy()
-      .then((message) => setFeatureFlagIdsList(message))
+    fetchFeatureFlagsDummy()
+      .then((message) => setFeatureFlags(message))
       .catch((err) => console.error(err))
       .finally(() => setIsLoading(false));
-  }, [fetchFeatureFlagIdsListDummy]);
+  }, [fetchFeatureFlagsDummy]);
 
   const renderFeatureFlags = useMemo(
     () =>
-      isLoading ? skeletonArray.map((_, index) => <FeatureFlagSkeleton key={index} />) : featureFlagIdsList.map((key) => <FeatureFlag key={key} name={key} />),
-    [featureFlagIdsList, isLoading]
+      isLoading
+        ? skeletonArray.map((_, index) => <FeatureFlagSkeleton key={index} />)
+        : Object.entries(featureFlags).map(([key, value]) => <FeatureFlag key={key} defaultValue={value} name={key} />),
+    [featureFlags, isLoading]
   );
 
   return (
