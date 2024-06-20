@@ -45,11 +45,33 @@ export const useFeatureFlagDataDummy = () => {
     [getState]
   );
 
-  const setFeatureFlagDummy = useCallback(
-    (name, value) =>
+  const fetchFeatureFlagsDummy = useCallback(
+    (rejectPromise = false) =>
       new Promise((resolve, reject) => {
         setTimeout(() => {
           const { featureFlagData } = getState();
+
+          if (!rejectPromise) {
+            resolve(featureFlagData);
+          } else {
+            reject('Fetching feature flags object was rejected by programmer.');
+          }
+        }, promiseDelay);
+      }),
+    [getState]
+  );
+
+  const setFeatureFlagDummy = useCallback(
+    (name, value, rejectPromise = false) =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const { featureFlagData } = getState();
+
+          if (rejectPromise) {
+            reject(`Setting feature flag with ID "${name}" was rejected by programmer.`);
+
+            return;
+          }
 
           if (!Object.hasOwn(featureFlagData, name)) {
             reject(`Feature flag with ID "${name}" not found.`);
@@ -73,9 +95,27 @@ export const useFeatureFlagDataDummy = () => {
     [getState, setState]
   );
 
+  const setFeatureFlagsDummy = useCallback(
+    (featureFlags, rejectPromise = false) =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (!rejectPromise) {
+            setState({ featureFlagData: featureFlags });
+
+            resolve();
+          } else {
+            reject('Setting feature flags was rejected by programmer.');
+          }
+        }, promiseDelay);
+      }),
+    [setState]
+  );
+
   return {
     fetchFeatureFlagDummy,
     fetchFeatureFlagIdsListDummy,
+    fetchFeatureFlagsDummy,
     setFeatureFlagDummy,
+    setFeatureFlagsDummy,
   };
 };
