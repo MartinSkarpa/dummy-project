@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^13.5.0",
     "react": "19.0.0-rc-107a2f8c3e-20240617",
     "react-dom": "19.0.0-rc-107a2f8c3e-20240617",
+    "react-error-boundary": "^4.0.13",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
     "zustand": "^4.5.2"
